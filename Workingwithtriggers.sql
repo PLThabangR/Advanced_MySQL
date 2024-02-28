@@ -13,6 +13,7 @@ VALUES ("P1", "Artificial grass bags ", 40, 50, 100),
 
 CREATE TABLE Notifications (NotificationID INT AUTO_INCREMENT, Notification VARCHAR(255), DateTime TIMESTAMP NOT NULL, PRIMARY KEY(NotificationID));
 select * from Products;
+#########################Solution 1#############################################
 Delimiter //
 create trigger ProductSellPriceInsertCheck 
 after insert on Products for each row 
@@ -29,7 +30,7 @@ VALUES ("P8", "Product 8 ", 40, 30, 100);
 select * from notifications;
 select * from products;
 
-##############################END OF SOLUTION 1 ##################################################################
+##############################SOLUTION 2 ##################################################################
 Delimiter //
 create trigger ProductSellPriceUpdateCheck after update on Products for each row
 begin 
@@ -37,3 +38,13 @@ if New.sellPrice < new.buyPrice
 	replace into Notifications(Notification,DateTime) values(concat(new.productID," as updated with a SellPrice of  + SellPrice + which is the same or less than the BuyPrice"),now());
 end 
 Delimiter ;
+##############################Solution 3##################################################################
+DELIMITER //
+
+CREATE TRIGGER NotifyProductDelete 
+    AFTER DELETE   
+    ON Products FOR EACH ROW   
+	INSERT INTO Notifications(Notification, DateTime) 
+    VALUES(CONCAT('The product with a ProductID ', OLD.ProductID,' was deleted'), NOW()); 
+END //
+DELIMITER ;
