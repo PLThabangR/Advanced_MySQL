@@ -48,3 +48,5 @@ CREATE TRIGGER NotifyProductDelete
     VALUES(CONCAT('The product with a ProductID ', OLD.ProductID,' was deleted'), NOW()); 
 END //
 DELIMITER ;
+
+####################

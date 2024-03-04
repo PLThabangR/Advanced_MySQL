@@ -53,3 +53,78 @@ Update Employees set fullName= "Thabang Rakgoropo" where EmployeeID = 1;
 
 select x.OrderID,y.FullName from Orders as x inner join Employees as y on x.OrderID = y.EmployeeID;
 commit;
+
+
+#############Common Table Expresion #######################################
+with averageSale2020 as (Select concat(avg(Cost)," 2020") as "Avereage "from Orders where Year(Date) = 2020)
+select * from averageSale2020 ;
+
+with averageSale2021 as (Select concat(avg(Cost) , " 2021") as "Avereage" from Orders where Year(Date) = 2021),
+	averageSale2022 as (Select concat(avg(Cost) ," 2022") from Orders where Year(Date) = 2022)
+    
+select * from averageSale2021 union
+select * from averageSale2022 ;
+
+#########################Prepare Statment#############################################
+prepare GetOrderStatement from 'Select clientID,ProductID,Quantity, Cost from Orders where OrderID =?';
+
+Set @orderID =5;
+
+Execute GetOrderStatement using @orderID;
+
+#####################MySQl Json############################
+create table Activity(ActivityID int primary key,Properties json);
+insert into Activity(ActivityID,Properties) values (1,'{"ClientID":"CL1","ProductID":"P1","Order":"True"}'),
+													(2,'{"ClientID":"CL2","ProductID":"P2","Order":"False"}'),
+                                                    (3,'{"ClientID":"CL3","ProductID":"P3","Order":"True"}');
+                                                    
+select ActivityID,Properties->> '$.ClientID' as "ClientID",Properties->> '$.ProductID' as "ProductID",Properties->> '$.Order' as "Orders" from Activity;
+
+
+#####################################################End Module activity#################################
+SELECT CONCAT("Cl1: ", COUNT(OrderID), "orders") AS "Total number of orders" FROM Orders WHERE YEAR(Date) = 2022 AND ClientID = "Cl1" UNION SELECT CONCAT("Cl2: ", COUNT(OrderID), "orders") FROM Orders WHERE YEAR(Date) = 2022 AND ClientID = "Cl2" UNION SELECT CONCAT("Cl3: ", COUNT(OrderID), "orders") FROM Orders WHERE YEAR(Date) = 2022 AND ClientID = "Cl3"; 
+
+
+############################Task 1 Solution
+SELECT CONCAT("Cl1: ", COUNT(OrderID), "orders") AS "Total number of orders" 
+FROM Orders 
+WHERE YEAR(Date) = 2022 AND ClientID = "Cl1" 
+UNION 
+SELECT CONCAT("Cl2: ", COUNT(OrderID), "orders") 
+FROM Orders 
+WHERE YEAR(Date) = 2022 AND ClientID = "Cl2" 
+UNION 
+SELECT CONCAT("Cl3: ", COUNT(OrderID), "orders") 
+FROM Orders 
+WHERE YEAR(Date) = 2022 AND ClientID = "Cl3"; 
+
+###########################################################Task 2 Solution
+WITH 
+CL1_Orders AS (SELECT CONCAT("Cl1: ", COUNT(OrderID), "orders") AS "Total number of orders"  
+FROM Orders 
+WHERE YEAR(Date) = 2022 AND ClientID = "Cl1"), 
+CL2_Orders AS (SELECT  CONCAT("Cl2: ", COUNT(OrderID), "orders") 
+FROM Orders WHERE YEAR(Date) = 2022 AND ClientID = "Cl2"), 
+CL3_Orders AS (SELECT  CONCAT("Cl3: ", COUNT(OrderID), "orders") 
+FROM Orders WHERE YEAR(Date) = 2022 AND ClientID = "Cl3") 
+SELECT * FROM CL1_Orders
+UNION 
+SELECT * FROM CL2_Orders
+UNION 
+SELECT * FROM CL3_Orders; 
+
+##################################Task 3
+SELECT Activity.Properties ->>'$.ProductID' 
+AS ProductID, Products.ProductName, Products.BuyPrice, Products.SellPrice 
+FROM Products INNER JOIN Activity 
+ON Products.ProductID = Activity.Properties ->>'$.ProductID' 
+WHERE Activity.Properties ->>'$.Order' = "True";
+
+##########################################Task 1 answerB
+select * from averageSale2020 ;
+
+with nOrders201 as (Select concat("Cl1:",count(OrderID)) as "TotalOrders" from Orders where Year(Date) = 2022 and ClientID="Cl1"),
+	nOrders202 as (Select concat("Cl1:",count(OrderID)) from Orders where Year(Date) = 2022 and ClientID="Cl2")
+    
+select * from nOrders201 union
+select * from nOrders202 ;
